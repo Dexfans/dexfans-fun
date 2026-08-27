@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>DexFans Blackjack</title>
+
+  <link rel="stylesheet" href="casino.css">
+</head>
+
+<body>
+
+<header class="casino-header">
+
+  <a href="index.html" class="brand">
+    <span class="brand-mark">♦</span>
+    <span>DexFans Casino</span>
+  </a>
+
+  <div class="balance">
+    <span class="balance-icon">◆</span>
+    <span data-balance>10,000</span>
+  </div>
+
+</header>
+
+
+<main class="page game-page">
+
+  <div class="game-title">
+
+    <h1>🃏 Blackjack</h1>
+
+    <p>
+      Beat the dealer without going over 21.
+    </p>
+
+  </div>
+
+
+  <section class="game-panel">
+
+
+    <!-- DEALER -->
+
+    <div style="text-align:center">
+
+      <div
+        style="
+          color:var(--muted);
+          font-size:14px;
+          margin-bottom:8px;
+        "
+      >
+        DEALER
+      </div>
+
+      <div
+        style="
+          font-size:28px;
+          font-weight:800;
+        "
+        data-dealer-score
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div
+      class="cards"
+      data-dealer-cards
+    ></div>
+
+
+    <div
+      style="
+        height:1px;
+        background:var(--border);
+        margin:10px 0 20px;
+      "
+    ></div>
+
+
+    <!-- PLAYER -->
+
+    <div style="text-align:center">
+
+      <div
+        style="
+          color:var(--muted);
+          font-size:14px;
+          margin-bottom:8px;
+        "
+      >
+        YOU
+      </div>
+
+      <div
+        style="
+          font-size:28px;
+          font-weight:800;
+        "
+        data-player-score
+      >
+        —
+      </div>
+
+    </div>
+
+
+    <div
+      class="cards"
+      data-player-cards
+    ></div>
+
+
+    <!-- RESULT -->
+
+    <div
+      class="result"
+      data-result
+    >
+      Place your bet to deal.
+    </div>
+
+
+    <!-- BET -->
+
+    <div class="controls">
+
+      <div class="control-group">
+
+        <label for="blackjackBet">
+          Bet
+        </label>
+
+        <input
+          id="blackjackBet"
+          type="number"
+          value="100"
+          min="1"
+          inputmode="numeric"
+        >
+
+      </div>
+
+    </div>
+
+
+    <!-- QUICK BET -->
+
+    <div
+      style="
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        margin-top:12px;
+      "
+    >
+
+      <button
+        class="btn"
+        onclick="setBlackjackBet(25)"
+      >
+        25
+      </button>
+
+      <button
+        class="btn"
+        onclick="setBlackjackBet(100)"
+      >
+        100
+      </button>
+
+      <button
+        class="btn"
+        onclick="setBlackjackBet(500)"
+      >
+        500
+      </button>
+
+      <button
+        class="btn"
+        onclick="setBlackjackBet(1000)"
+      >
+        1,000
+      </button>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:10px;
+        margin-top:18px;
+      "
+    >
+
+      <button
+        id="dealButton"
+        class="btn btn-primary"
+        onclick="deal()"
+      >
+        DEAL
+      </button>
+
+      <button
+        id="hitButton"
+        class="btn btn-success"
+        onclick="hit()"
+        disabled
+      >
+        HIT
+      </button>
+
+      <button
+        id="standButton"
+        class="btn btn-danger"
+        onclick="stand()"
+        disabled
+      >
+        STAND
+      </button>
+
+    </div>
+
+
+    <!-- RULES -->
+
+    <div
+      style="
+        margin-top:30px;
+        padding-top:20px;
+        border-top:1px solid var(--border);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+
+      <strong style="color:var(--text)">
+        Blackjack rules
+      </strong>
+
+      <br>
+
+      Blackjack pays 2.5× your bet.
+
+      <br>
+
+      Winning a normal hand pays 2×.
+
+      <br>
+
+      A tie returns your original bet.
+
+      <br>
+
+      Dealer stands on 17.
+
+    </div>
+
+  </section>
+
+
+  <div style="
+    text-align:center;
+    margin-top:25px;
+  ">
+
+    <a
+      href="index.html"
+      class="btn"
+    >
+      ← Back to Casino
+    </a>
+
+  </div>
+
+</main>
+
+
+<script src="casino.js"></script>
+
+
+<script>
+
+let handActive = false;
+
+
+/* -------------------------
+   BET
+------------------------- */
+
+function setBlackjackBet(value) {
+
+  document.getElementById(
+    "blackjackBet"
+  ).value = value;
+
+}
+
+
+/* -------------------------
+   DEAL
+------------------------- */
+
+function deal() {
+
+  if (handActive) return;
+
+
+  const bet = Number(
+    document.getElementById(
+      "blackjackBet"
+    ).value
+  );
+
+
+  if (
+    !Number.isFinite(bet) ||
+    bet <= 0
+  ) {
+
+    DexFansCasino.setResult(
+      "Enter a valid bet.",
+      "lose"
+    );
+
+    return;
+  }
+
+
+  if (
+    bet >
+    DexFansCasino.getBalance()
+  ) {
+
+    DexFansCasino.setResult(
+      "You don't have enough credits.",
+      "lose"
+    );
+
+    return;
+  }
+
+
+  DexFansCasino.startBlackjack(bet);
+
+  handActive = true;
+
+
+  document.getElementById(
+    "dealButton"
+  ).disabled = true;
+
+  document.getElementById(
+    "hitButton"
+  ).disabled = false;
+
+  document.getElementById(
+    "standButton"
+  ).disabled = false;
+
+
+  /*
+    Give the game a moment to
+    display an immediate blackjack.
+  */
+
+  setTimeout(() => {
+
+    const score =
+      document.querySelector(
+        "[data-player-score]"
+      );
+
+    if (
+      score &&
+      score.textContent === "21"
+    ) {
+
+      finishHand();
+
+    }
+
+  }, 100);
+
+}
+
+
+/* -------------------------
+   HIT
+------------------------- */
+
+function hit() {
+
+  if (!handActive) return;
+
+  DexFansCasino.blackjackHit();
+
+
+  setTimeout(() => {
+
+    const score =
+      document.querySelector(
+        "[data-player-score]"
+      );
+
+    if (!score) return;
+
+
+    const value =
+      Number(score.textContent);
+
+
+    if (value > 21) {
+
+      finishHand();
+
+    }
+
+  }, 50);
+
+}
+
+
+/* -------------------------
+   STAND
+------------------------- */
+
+function stand() {
+
+  if (!handActive) return;
+
+  DexFansCasino.blackjackStand();
+
+  finishHand();
+
+}
+
+
+/* -------------------------
+   FINISH
+------------------------- */
+
+function finishHand() {
+
+  handActive = false;
+
+
+  document.getElementById(
+    "dealButton"
+  ).disabled = false;
+
+  document.getElementById(
+    "hitButton"
+  ).disabled = true;
+
+  document.getElementById(
+    "standButton"
+  ).disabled = true;
+
+}
+
+</script>
+
+</body>
+</html>
