@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>DexFans Casino</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, #29184a 0%, #0b0711 45%, #050407 100%);
+      color: white;
+      min-height: 100vh;
+    }
+
+    header {
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 25px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(5,4,8,.85);
+      backdrop-filter: blur(15px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .logo span {
+      color: #a89cff;
+      font-weight: 400;
+    }
+
+    nav {
+      display: flex;
+      gap: 22px;
+    }
+
+    nav a {
+      color: #aaa4b5;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      color: white;
+    }
+
+    .balance {
+      background: #17121f;
+      border: 1px solid #392c4e;
+      padding: 10px 15px;
+      border-radius: 12px;
+      color: #c5baff;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 55px 25px 80px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 55px 10px 70px;
+    }
+
+    .eyebrow {
+      color: #a89cff;
+      letter-spacing: 3px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(44px, 8vw, 82px);
+      line-height: .95;
+      letter-spacing: -5px;
+      margin-bottom: 25px;
+    }
+
+    h1 span {
+      color: #a89cff;
+    }
+
+    .hero p {
+      color: #9b96a5;
+      max-width: 620px;
+      margin: auto;
+      line-height: 1.7;
+      font-size: 17px;
+    }
+
+    .hero-buttons {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-block;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .primary {
+      background: #a89cff;
+      color: #100d17;
+    }
+
+    .secondary {
+      background: #17121f;
+      border: 1px solid #3a3048;
+      color: white;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .section-title h2 {
+      font-size: 30px;
+      letter-spacing: -1px;
+    }
+
+    .section-title span {
+      color: #8e8997;
+      font-size: 13px;
+    }
+
+    .games {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .game {
+      min-height: 210px;
+      padding: 22px;
+      border-radius: 20px;
+      border: 1px solid #29232f;
+      background: linear-gradient(145deg, #17111f, #0d0b11);
+      position: relative;
+      overflow: hidden;
+      transition: .2s;
+    }
+
+    .game:hover {
+      transform: translateY(-4px);
+      border-color: #6d5e91;
+    }
+
+    .game-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: #241b31;
+      font-size: 30px;
+      margin-bottom: 28px;
+    }
+
+    .game h3 {
+      font-size: 18px;
+      margin-bottom: 7px;
+    }
+
+    .game p {
+      color: #888390;
+      font-size: 12px;
+    }
+
+    .play {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      background: #a89cff;
+      color: #100d17;
+      padding: 8px 12px;
+      border-radius: 9px;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .feature {
+      margin-top: 65px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .feature-card {
+      padding: 30px;
+      min-height: 210px;
+      border-radius: 22px;
+      border: 1px solid #29232f;
+      background: #100d14;
+    }
+
+    .feature-card h2 {
+      margin-bottom: 12px;
+    }
+
+    .feature-card p {
+      color: #8f8a96;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 35px 20px;
+      border-top: 1px solid #211d26;
+      color: #66616d;
+      font-size: 12px;
+    }
+
+    @media (max-width: 850px) {
+      .games {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .feature {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        display: none;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .games {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        letter-spacing: -3px;
+      }
+
+      .balance {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <a href="index.html" class="logo">
+    DEX<span>FANS</span>
+  </a>
+
+  <nav>
+    <a href="index.html">Casino</a>
+    <a href="#">Games</a>
+    <a href="#">Leaderboard</a>
+    <a href="#">Profile</a>
+  </nav>
+
+  <div class="balance">
+    🪙 10,000
+  </div>
+
+</header>
+
+
+<main>
+
+  <section class="hero">
+
+    <div class="eyebrow">
+      DEXFANS CASINO
+    </div>
+
+    <h1>
+      Play the game.<br>
+      <span>Own the moment.</span>
+    </h1>
+
+    <p>
+      Welcome to the DexFans Casino experience.
+      Explore classic casino games, compete on the leaderboard
+      and play using virtual credits.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="#games" class="button primary">
+        Explore games
+      </a>
+
+      <a href="#leaderboard" class="button secondary">
+        Leaderboard
+      </a>
+    </div>
+
+  </section>
+
+
+  <section id="games">
+
+    <div class="section-title">
+      <h2>Games</h2>
+      <span>Virtual credits only</span>
+    </div>
+
+
+    <div class="games">
+
+      <div class="game">
+        <div class="game-icon">🎰</div>
+        <h3>Slots</h3>
+        <p>Spin the reels and chase the jackpot.</p>
+        <a class="play" href="slots.html">PLAY</a>
+      </div>
+
+
+      <div class="game">
+        <div class="game-icon">🎡</div>
+        <h3>Roulette</h3>
+        <p>Red, black, green — place your virtual bet.</p>
+        <a class="play" href="roulette.html">PLAY</a>
+      </div>
+
+
+      <div class="game">
+        <div class="game-icon">🃏</div>
+        <h3>Blackjack</h3>
+        <p>Beat the dealer without going over 21.</p>
+        <a class="play" href="blackjack.html">PLAY</a>
+      </div>
+
+
+      <div class="game">
+        <div class="game-icon">💥</div>
+        <h3>Crash</h3>
+        <p>How high will the multiplier go?</p>
+        <a class="play" href="crash.html">PLAY</a>
+      </div>
+
+
+      <div class="game">
+        <div class="game-icon">🎯</div>
+        <h3>Dice</h3>
+        <p>Roll the dice and test your luck.</p>
+        <a class="play" href="dice.html">PLAY</a>
+      </div>
+
+
+      <div class="game">
+        <div class="game-icon">💎</div>
+        <h3>Mines</h3>
+        <p>Reveal gems while avoiding the mines.</p>
+        <a class="play" href="mines.html">PLAY</a>
+      </div>
+
+
+      <div class="game">
+        <div class="game-icon">🟣</div>
+        <h3>Plinko</h3>
+        <p>Drop the ball and watch where it lands.</p>
+        <a class="play" href="plinko.html">PLAY</a>
+      </div>
+
+
+      <div class="game">
+        <div class="game-icon">♠️</div>
+        <h3>Baccarat</h3>
+        <p>Player, banker or tie.</p>
+        <a class="play" href="baccarat.html">PLAY</a>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="feature">
+
+    <div class="feature-card">
+
+      <div class="eyebrow">
+        PLAY
+      </div>
+
+      <h2>10,000 virtual credits</h2>
+
+      <p>
+        Start with a virtual balance and explore every game.
+        This prototype does not process real-money deposits
+        or withdrawals.
+      </p>
+
+    </div>
+
+
+    <div class="feature-card" id="leaderboard">
+
+      <div class="eyebrow">
+        COMPETE
+      </div>
+
+      <h2>Climb the leaderboard</h2>
+
+      <p>
+        Build your virtual score and compete against other
+        players in the future multiplayer version.
+      </p>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<footer>
+
+  © 2026 DexFans Casino · Play-money prototype
+
+</footer>
+
+
+</body>
+</html>
