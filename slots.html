@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>DexFans Slots</title>
+
+  <link rel="stylesheet" href="casino.css">
+</head>
+
+<body>
+
+<header class="casino-header">
+
+  <a href="index.html" class="brand">
+    <span class="brand-mark">♦</span>
+    <span>DexFans Casino</span>
+  </a>
+
+  <div class="balance">
+    <span class="balance-icon">◆</span>
+    <span data-balance>10,000</span>
+  </div>
+
+</header>
+
+
+<main class="page game-page">
+
+  <div class="game-title">
+
+    <h1>🎰 Slots</h1>
+
+    <p>
+      Match three symbols and hit the jackpot.
+    </p>
+
+  </div>
+
+
+  <section class="game-panel">
+
+    <!-- REELS -->
+
+    <div class="slot-machine">
+
+      <div class="reels">
+
+        <div
+          class="reel"
+          data-reel
+        >🍒</div>
+
+        <div
+          class="reel"
+          data-reel
+        >🍋</div>
+
+        <div
+          class="reel"
+          data-reel
+        >💎</div>
+
+      </div>
+
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div
+      class="result"
+      data-result
+    >
+      Place your bet and spin.
+    </div>
+
+
+    <!-- BET CONTROLS -->
+
+    <div class="controls">
+
+      <div class="control-group">
+
+        <label for="bet">
+          Bet
+        </label>
+
+        <input
+          id="bet"
+          type="number"
+          min="1"
+          value="100"
+          inputmode="numeric"
+        >
+
+      </div>
+
+    </div>
+
+
+    <!-- QUICK BETS -->
+
+    <div
+      style="
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        margin-top:12px;
+      "
+    >
+
+      <button
+        class="btn"
+        onclick="setBet(25)"
+      >
+        25
+      </button>
+
+      <button
+        class="btn"
+        onclick="setBet(50)"
+      >
+        50
+      </button>
+
+      <button
+        class="btn"
+        onclick="setBet(100)"
+      >
+        100
+      </button>
+
+      <button
+        class="btn"
+        onclick="setBet(500)"
+      >
+        500
+      </button>
+
+      <button
+        class="btn"
+        onclick="setBet('half')"
+      >
+        ½ Balance
+      </button>
+
+    </div>
+
+
+    <!-- SPIN -->
+
+    <button
+      id="spinButton"
+      class="btn btn-primary"
+      style="
+        width:100%;
+        margin-top:18px;
+        padding:16px;
+        font-size:18px;
+        font-weight:800;
+      "
+      onclick="spin()"
+    >
+      SPIN 🎰
+    </button>
+
+
+    <!-- PAYTABLE -->
+
+    <div
+      style="
+        margin-top:30px;
+        padding-top:22px;
+        border-top:1px solid var(--border);
+      "
+    >
+
+      <h3 style="margin-top:0">
+        Paytable
+      </h3>
+
+      <div
+        style="
+          display:grid;
+          grid-template-columns:1fr auto;
+          gap:10px;
+          color:var(--muted);
+          font-size:14px;
+        "
+      >
+
+        <span>
+          3 × 7️⃣
+        </span>
+
+        <strong style="color:var(--gold)">
+          50×
+        </strong>
+
+
+        <span>
+          3 × any matching symbol
+        </span>
+
+        <strong>
+          15×
+        </strong>
+
+
+        <span>
+          2 matching symbols
+        </span>
+
+        <strong>
+          2×
+        </strong>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <div style="
+    text-align:center;
+    margin-top:25px;
+  ">
+
+    <a
+      href="index.html"
+      class="btn"
+    >
+      ← Back to Casino
+    </a>
+
+  </div>
+
+</main>
+
+
+<script src="casino.js"></script>
+
+
+<script>
+
+function setBet(value) {
+
+  const input = document.getElementById("bet");
+
+  if (value === "half") {
+
+    const balance =
+      DexFansCasino.getBalance();
+
+    input.value =
+      Math.max(1, Math.floor(balance / 2));
+
+    return;
+  }
+
+  input.value = value;
+}
+
+
+function spin() {
+
+  const input =
+    document.getElementById("bet");
+
+  const button =
+    document.getElementById("spinButton");
+
+  const bet =
+    Number(input.value);
+
+  if (
+    !Number.isFinite(bet) ||
+    bet <= 0
+  ) {
+
+    DexFansCasino.setResult(
+      "Enter a valid bet.",
+      "lose"
+    );
+
+    return;
+  }
+
+
+  if (
+    bet >
+    DexFansCasino.getBalance()
+  ) {
+
+    DexFansCasino.setResult(
+      "You don't have enough credits.",
+      "lose"
+    );
+
+    return;
+  }
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "SPINNING…";
+
+
+  DexFansCasino.spinSlots(bet);
+
+
+  /*
+    Keep the button locked while
+    the reel animation runs.
+  */
+
+  setTimeout(() => {
+
+    button.disabled = false;
+
+    button.textContent =
+      "SPIN 🎰";
+
+  }, 1100);
+
+}
+
+</script>
+
+</body>
+</html>
