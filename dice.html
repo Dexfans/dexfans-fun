@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DexFans Dice</title>
+  <link rel="stylesheet" href="casino.css">
+</head>
+
+<body>
+
+<header class="casino-header">
+
+  <a href="index.html" class="brand">
+    <span class="brand-mark">♦</span>
+    <span>DexFans Casino</span>
+  </a>
+
+  <div class="balance">
+    <span class="balance-icon">◆</span>
+    <span data-balance>10,000</span>
+  </div>
+
+</header>
+
+
+<main class="page game-page">
+
+  <div class="game-title">
+    <h1>🎲 Dice</h1>
+    <p>Choose your odds and roll.</p>
+  </div>
+
+
+  <section class="game-panel">
+
+    <div
+      id="diceDisplay"
+      style="
+        width:170px;
+        height:170px;
+        margin:10px auto 25px;
+        display:grid;
+        place-items:center;
+        border-radius:30px;
+        background:linear-gradient(145deg,#171a25,#0b0c12);
+        border:1px solid var(--border);
+        box-shadow:var(--shadow);
+        font-size:58px;
+        font-weight:900;
+      "
+    >
+      50.00
+    </div>
+
+
+    <div class="result" data-result>
+      Pick a target and roll.
+    </div>
+
+
+    <div class="controls">
+
+      <div class="control-group">
+
+        <label for="diceBet">
+          Bet
+        </label>
+
+        <input
+          id="diceBet"
+          type="number"
+          min="1"
+          value="100"
+          inputmode="numeric"
+        >
+
+      </div>
+
+
+      <div class="control-group">
+
+        <label for="diceTarget">
+          Target
+        </label>
+
+        <input
+          id="diceTarget"
+          type="number"
+          min="1"
+          max="99"
+          step="1"
+          value="50"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div
+      style="
+        margin-top:18px;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+      "
+    >
+
+      <button
+        class="btn btn-success"
+        onclick="roll('under')"
+      >
+        ROLL UNDER
+      </button>
+
+      <button
+        class="btn btn-primary"
+        onclick="roll('over')"
+      >
+        ROLL OVER
+      </button>
+
+    </div>
+
+
+    <div
+      style="
+        margin-top:24px;
+        padding:18px;
+        border-radius:16px;
+        background:rgba(255,255,255,.035);
+      "
+    >
+
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          margin-bottom:10px;
+          color:var(--muted);
+          font-size:13px;
+        "
+      >
+        <span>Win chance</span>
+        <strong
+          id="winChance"
+          style="color:var(--text)"
+        >
+          50%
+        </strong>
+      </div>
+
+      <div
+        style="
+          height:8px;
+          border-radius:99px;
+          background:#08090e;
+          overflow:hidden;
+        "
+      >
+
+        <div
+          id="chanceBar"
+          style="
+            width:50%;
+            height:100%;
+            background:var(--accent);
+            transition:width .2s ease;
+          "
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      style="
+        margin-top:28px;
+        padding-top:20px;
+        border-top:1px solid var(--border);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+
+      <strong style="color:var(--text)">
+        How it works
+      </strong>
+
+      <br>
+
+      Set a target between 1 and 99.
+
+      <br>
+
+      Choose <strong>Under</strong> or
+      <strong>Over</strong>.
+
+      <br>
+
+      The closer you make your target to the
+      edge, the higher the potential payout.
+
+    </div>
+
+  </section>
+
+
+  <div
+    style="
+      text-align:center;
+      margin-top:25px;
+    "
+  >
+
+    <a href="index.html" class="btn">
+      ← Back to Casino
+    </a>
+
+  </div>
+
+</main>
+
+
+<script src="casino.js"></script>
+
+
+<script>
+
+const targetInput =
+  document.getElementById("diceTarget");
+
+const chanceText =
+  document.getElementById("winChance");
+
+const chanceBar =
+  document.getElementById("chanceBar");
+
+const diceDisplay =
+  document.getElementById("diceDisplay");
+
+
+function updateChance() {
+
+  let target =
+    Number(targetInput.value);
+
+
+  target =
+    Math.max(
+      1,
+      Math.min(99, target)
+    );
+
+
+  targetInput.value =
+    target;
+
+
+  const chance =
+    target;
+
+
+  chanceText.textContent =
+    `${chance}%`;
+
+
+  chanceBar.style.width =
+    `${chance}%`;
+
+}
+
+
+targetInput.addEventListener(
+  "input",
+  updateChance
+);
+
+
+function roll(direction) {
+
+  const bet =
+    Number(
+      document.getElementById(
+        "diceBet"
+      ).value
+    );
+
+
+  const target =
+    Number(
+      targetInput.value
+    );
+
+
+  if (
+    !Number.isFinite(bet) ||
+    bet <= 0
+  ) {
+
+    DexFansCasino.setResult(
+      "Enter a valid bet.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    target < 1 ||
+    target > 99
+  ) {
+
+    DexFansCasino.setResult(
+      "Target must be between 1 and 99.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  /*
+    Animate the number first.
+  */
+
+  let frames = 0;
+
+  const animation =
+    setInterval(() => {
+
+      diceDisplay.textContent =
+        DexFansCasino
+          .randomFloat(0, 100)
+          .toFixed(2);
+
+      frames++;
+
+      if (frames >= 10) {
+
+        clearInterval(animation);
+
+        DexFansCasino.rollDice(
+          bet,
+          target,
+          direction
+        );
+
+        /*
+          The engine generates the final
+          roll. The display animation is
+          intentionally separate so the
+          result feels immediate.
+        */
+
+        setTimeout(() => {
+
+          const result =
+            document.querySelector(
+              "[data-result]"
+            );
+
+          if (result) {
+
+            const match =
+              result.textContent.match(
+                /Rolled ([0-9.]+)/
+              );
+
+            if (match) {
+
+              diceDisplay.textContent =
+                Number(match[1])
+                  .toFixed(2);
+
+            }
+
+          }
+
+        }, 20);
+
+      }
+
+    }, 50);
+
+}
+
+updateChance();
+
+</script>
+
+</body>
+</html>
