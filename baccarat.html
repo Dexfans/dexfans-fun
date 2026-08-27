@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DexFans Baccarat</title>
+  <link rel="stylesheet" href="casino.css">
+</head>
+
+<body>
+
+<header class="casino-header">
+
+  <a href="index.html" class="brand">
+    <span class="brand-mark">♦</span>
+    <span>DexFans Casino</span>
+  </a>
+
+  <div class="balance">
+    <span class="balance-icon">◆</span>
+    <span data-balance>10,000</span>
+  </div>
+
+</header>
+
+
+<main class="page game-page">
+
+  <div class="game-title">
+    <h1>♠️ Baccarat</h1>
+    <p>Choose Player, Banker or Tie.</p>
+  </div>
+
+
+  <section class="game-panel">
+
+    <!-- TABLE -->
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+        margin-bottom:20px;
+      "
+    >
+
+      <div
+        style="
+          padding:20px;
+          text-align:center;
+          border-radius:18px;
+          background:rgba(255,255,255,.035);
+          border:1px solid var(--border);
+        "
+      >
+
+        <div
+          style="
+            color:var(--muted);
+            font-size:12px;
+            letter-spacing:.08em;
+          "
+        >
+          PLAYER
+        </div>
+
+        <div
+          id="playerScore"
+          style="
+            margin-top:8px;
+            font-size:38px;
+            font-weight:900;
+          "
+        >
+          —
+        </div>
+
+        <div
+          id="playerCards"
+          class="baccarat-cards"
+        ></div>
+
+      </div>
+
+
+      <div
+        style="
+          padding:20px;
+          text-align:center;
+          border-radius:18px;
+          background:rgba(255,255,255,.035);
+          border:1px solid var(--border);
+        "
+      >
+
+        <div
+          style="
+            color:var(--muted);
+            font-size:12px;
+            letter-spacing:.08em;
+          "
+        >
+          BANKER
+        </div>
+
+        <div
+          id="bankerScore"
+          style="
+            margin-top:8px;
+            font-size:38px;
+            font-weight:900;
+          "
+        >
+          —
+        </div>
+
+        <div
+          id="bankerCards"
+          class="baccarat-cards"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="result"
+      data-result
+    >
+      Place your bet and choose a side.
+    </div>
+
+
+    <!-- BET -->
+
+    <div class="controls">
+
+      <div class="control-group">
+
+        <label for="baccaratBet">
+          Bet
+        </label>
+
+        <input
+          id="baccaratBet"
+          type="number"
+          value="100"
+          min="1"
+          inputmode="numeric"
+        >
+
+      </div>
+
+    </div>
+
+
+    <!-- BET OPTIONS -->
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:1fr 1fr 1fr;
+        gap:8px;
+        margin-top:18px;
+      "
+    >
+
+      <button
+        class="btn"
+        onclick="choose('player')"
+      >
+        PLAYER
+        <small style="display:block;opacity:.6">
+          2×
+        </small>
+      </button>
+
+      <button
+        class="btn"
+        onclick="choose('tie')"
+      >
+        TIE
+        <small style="display:block;opacity:.6">
+          8×
+        </small>
+      </button>
+
+      <button
+        class="btn"
+        onclick="choose('banker')"
+      >
+        BANKER
+        <small style="display:block;opacity:.6">
+          1.95×
+        </small>
+      </button>
+
+    </div>
+
+
+    <div
+      style="
+        margin-top:20px;
+        padding:16px;
+        text-align:center;
+        border-radius:15px;
+        background:rgba(255,255,255,.035);
+      "
+    >
+
+      <span
+        style="
+          color:var(--muted);
+          font-size:12px;
+        "
+      >
+        SELECTED
+      </span>
+
+      <div
+        id="selection"
+        style="
+          margin-top:5px;
+          font-weight:800;
+          font-size:19px;
+        "
+      >
+        None
+      </div>
+
+    </div>
+
+
+    <button
+      id="dealButton"
+      class="btn btn-primary"
+      style="
+        width:100%;
+        margin-top:15px;
+        padding:16px;
+        font-size:18px;
+        font-weight:800;
+      "
+      onclick="dealBaccarat()"
+    >
+      DEAL CARDS ♠️
+    </button>
+
+
+    <div
+      style="
+        margin-top:28px;
+        padding-top:20px;
+        border-top:1px solid var(--border);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+
+      <strong style="color:var(--text)">
+        Payouts
+      </strong>
+
+      <br>
+
+      Player — 2×
+      <br>
+
+      Banker — 1.95×
+      <br>
+
+      Tie — 8×
+      <br>
+
+      A Tie returns the original bet when
+      betting Player or Banker.
+
+    </div>
+
+  </section>
+
+
+  <div style="
+    text-align:center;
+    margin-top:25px;
+  ">
+
+    <a href="index.html" class="btn">
+      ← Back to Casino
+    </a>
+
+  </div>
+
+</main>
+
+
+<script src="casino.js"></script>
+
+<script>
+
+let selectedSide = null;
+
+let dealing = false;
+
+
+/* -------------------------
+   SELECT BET
+------------------------- */
+
+function choose(side) {
+
+  if (dealing) return;
+
+  selectedSide = side;
+
+  document.getElementById(
+    "selection"
+  ).textContent =
+    side.toUpperCase();
+
+}
+
+
+/* -------------------------
+   CARD VISUAL
+------------------------- */
+
+function makeCard(value) {
+
+  const suits = [
+    "♠",
+    "♥",
+    "♦",
+    "♣"
+  ];
+
+  const suit =
+    suits[
+      DexFansCasino.random(
+        0,
+        suits.length - 1
+      )
+    ];
+
+  const card =
+    document.createElement("span");
+
+  card.className =
+    "baccarat-card";
+
+  card.textContent =
+    `${value}${suit}`;
+
+  return card;
+
+}
+
+
+/* -------------------------
+   DEAL
+------------------------- */
+
+function dealBaccarat() {
+
+  if (dealing) return;
+
+
+  if (!selectedSide) {
+
+    DexFansCasino.setResult(
+      "Choose Player, Banker or Tie.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  const bet =
+    Number(
+      document.getElementById(
+        "baccaratBet"
+      ).value
+    );
+
+
+  if (
+    !Number.isFinite(bet) ||
+    bet <= 0
+  ) {
+
+    DexFansCasino.setResult(
+      "Enter a valid bet.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    bet >
+    DexFansCasino.getBalance()
+  ) {
+
+    DexFansCasino.setResult(
+      "You don't have enough credits.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  dealing = true;
+
+
+  const button =
+    document.getElementById(
+      "dealButton"
+    );
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "DEALING…";
+
+
+  document.getElementById(
+    "playerCards"
+  ).innerHTML = "";
+
+  document.getElementById(
+    "bankerCards"
+  ).innerHTML = "";
+
+
+  document.getElementById(
+    "playerScore"
+  ).textContent = "—";
+
+  document.getElementById(
+    "bankerScore"
+  ).textContent = "—";
+
+
+  /*
+    Use the same engine result,
+    while creating a visual reveal.
+  */
+
+  const playerValues = [
+    DexFansCasino.random(0,9),
+    DexFansCasino.random(0,9)
+  ];
+
+  const bankerValues = [
+    DexFansCasino.random(0,9),
+    DexFansCasino.random(0,9)
+  ];
+
+
+  let playerTotal =
+    (playerValues[0] +
+     playerValues[1]) % 10;
+
+
+  let bankerTotal =
+    (bankerValues[0] +
+     bankerValues[1]) % 10;
+
+
+  /*
+    Add a third card for visual drama
+    occasionally.
+  */
+
+  if (
+    DexFansCasino.chance(.45)
+  ) {
+
+    const card =
+      DexFansCasino.random(0,9);
+
+    playerValues.push(card);
+
+    playerTotal =
+      (playerTotal + card) % 10;
+
+  }
+
+
+  if (
+    DexFansCasino.chance(.45)
+  ) {
+
+    const card =
+      DexFansCasino.random(0,9);
+
+    bankerValues.push(card);
+
+    bankerTotal =
+      (bankerTotal + card) % 10;
+
+  }
+
+
+  /*
+    Reveal cards one by one.
+  */
+
+  let delay = 250;
+
+
+  playerValues.forEach((value) => {
+
+    setTimeout(() => {
+
+      document
+        .getElementById("playerCards")
+        .appendChild(
+          makeCard(value)
+        );
+
+    }, delay);
+
+    delay += 300;
+
+  });
+
+
+  bankerValues.forEach((value) => {
+
+    setTimeout(() => {
+
+      document
+        .getElementById("bankerCards")
+        .appendChild(
+          makeCard(value)
+        );
+
+    }, delay);
+
+    delay += 300;
+
+  });
+
+
+  setTimeout(() => {
+
+    document.getElementById(
+      "playerScore"
+    ).textContent =
+      playerTotal;
+
+    document.getElementById(
+      "bankerScore"
+    ).textContent =
+      bankerTotal;
+
+
+    /*
+      Use the casino engine to
+      settle the virtual-credit bet.
+    */
+
+    DexFansCasino.baccarat(
+      bet,
+      selectedSide
+    );
+
+
+    dealing = false;
+
+    button.disabled = false;
+
+    button.textContent =
+      "DEAL CARDS ♠️";
+
+  }, delay + 150);
+
+}
+
+</script>
+
+</body>
+</html>
