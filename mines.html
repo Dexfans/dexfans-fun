@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DexFans Mines</title>
+  <link rel="stylesheet" href="casino.css">
+</head>
+
+<body>
+
+<header class="casino-header">
+
+  <a href="index.html" class="brand">
+    <span class="brand-mark">♦</span>
+    <span>DexFans Casino</span>
+  </a>
+
+  <div class="balance">
+    <span class="balance-icon">◆</span>
+    <span data-balance>10,000</span>
+  </div>
+
+</header>
+
+
+<main class="page game-page">
+
+  <div class="game-title">
+    <h1>💎 Mines</h1>
+    <p>Reveal gems, avoid the mines, and cash out.</p>
+  </div>
+
+
+  <section class="game-panel">
+
+    <div class="controls">
+
+      <div class="control-group">
+
+        <label for="minesBet">
+          Bet
+        </label>
+
+        <input
+          id="minesBet"
+          type="number"
+          min="1"
+          value="100"
+          inputmode="numeric"
+        >
+
+      </div>
+
+
+      <div class="control-group">
+
+        <label for="mineCount">
+          Mines
+        </label>
+
+        <select id="mineCount">
+          <option value="3">3 Mines</option>
+          <option value="5" selected>5 Mines</option>
+          <option value="7">7 Mines</option>
+          <option value="10">10 Mines</option>
+          <option value="15">15 Mines</option>
+          <option value="20">20 Mines</option>
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="mineGrid"
+      style="
+        display:grid;
+        grid-template-columns:repeat(5,1fr);
+        gap:8px;
+        margin-top:22px;
+      "
+    ></div>
+
+
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-top:20px;
+        padding:16px;
+        border-radius:16px;
+        background:rgba(255,255,255,.035);
+      "
+    >
+
+      <div>
+
+        <div
+          style="
+            color:var(--muted);
+            font-size:12px;
+          "
+        >
+          CURRENT MULTIPLIER
+        </div>
+
+        <strong
+          id="mineMultiplier"
+          style="font-size:24px"
+        >
+          1.00×
+        </strong>
+
+      </div>
+
+
+      <div style="text-align:right">
+
+        <div
+          style="
+            color:var(--muted);
+            font-size:12px;
+          "
+        >
+          POTENTIAL WIN
+        </div>
+
+        <strong
+          id="potentialWin"
+          style="font-size:24px"
+        >
+          0
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="result"
+      data-result
+    >
+      Place your bet to start.
+    </div>
+
+
+    <button
+      id="mineStart"
+      class="btn btn-primary"
+      style="
+        width:100%;
+        margin-top:16px;
+        padding:16px;
+        font-size:17px;
+        font-weight:800;
+      "
+      onclick="startMines()"
+    >
+      START GAME 💣
+    </button>
+
+
+    <button
+      id="cashoutButton"
+      class="btn btn-success"
+      style="
+        width:100%;
+        margin-top:10px;
+        padding:16px;
+        font-size:17px;
+        font-weight:800;
+        display:none;
+      "
+      onclick="cashOut()"
+    >
+      CASH OUT
+    </button>
+
+
+    <div
+      style="
+        margin-top:28px;
+        padding-top:20px;
+        border-top:1px solid var(--border);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+
+      <strong style="color:var(--text)">
+        How to play
+      </strong>
+
+      <br>
+
+      Choose how many mines you want.
+
+      <br>
+
+      Start the round and reveal squares.
+
+      <br>
+
+      Find gems to increase your multiplier.
+
+      <br>
+
+      Hit a mine and the round ends.
+
+      <br>
+
+      Cash out before you get greedy.
+
+    </div>
+
+  </section>
+
+
+  <div
+    style="
+      text-align:center;
+      margin-top:25px;
+    "
+  >
+
+    <a href="index.html" class="btn">
+      ← Back to Casino
+    </a>
+
+  </div>
+
+</main>
+
+
+<script src="casino.js"></script>
+
+
+<script>
+
+let mines = new Set();
+
+let mineGameActive = false;
+
+let mineBet = 0;
+
+let revealed = 0;
+
+const totalTiles = 25;
+
+
+/* -------------------------
+   ELEMENTS
+------------------------- */
+
+const grid =
+  document.getElementById("mineGrid");
+
+const multiplierDisplay =
+  document.getElementById("mineMultiplier");
+
+const potentialDisplay =
+  document.getElementById("potentialWin");
+
+const startButton =
+  document.getElementById("mineStart");
+
+const cashoutButton =
+  document.getElementById("cashoutButton");
+
+
+/* -------------------------
+   CREATE GRID
+------------------------- */
+
+function buildGrid() {
+
+  grid.innerHTML = "";
+
+  for (
+    let i = 0;
+    i < totalTiles;
+    i++
+  ) {
+
+    const tile =
+      document.createElement("button");
+
+    tile.className = "mine-tile";
+
+    tile.dataset.index = i;
+
+    tile.innerHTML = "◆";
+
+    tile.onclick = () =>
+      revealTile(i, tile);
+
+    grid.appendChild(tile);
+
+  }
+
+}
+
+
+/* -------------------------
+   START
+------------------------- */
+
+function startMines() {
+
+  if (mineGameActive) return;
+
+
+  mineBet =
+    Math.floor(
+      Number(
+        document.getElementById(
+          "minesBet"
+        ).value
+      )
+    );
+
+
+  const mineCount =
+    Number(
+      document.getElementById(
+        "mineCount"
+      ).value
+    );
+
+
+  if (
+    !Number.isFinite(mineBet) ||
+    mineBet <= 0
+  ) {
+
+    DexFansCasino.setResult(
+      "Enter a valid bet.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    mineBet >
+    DexFansCasino.getBalance()
+  ) {
+
+    DexFansCasino.setResult(
+      "You don't have enough credits.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    mineCount >= totalTiles
+  ) {
+
+    DexFansCasino.setResult(
+      "Choose fewer mines.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  /*
+    Take the bet.
+  */
+
+  if (
+    !DexFansCasino.placeBet(
+      mineBet
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  mines =
+    DexFansCasino.createMines(
+      totalTiles,
+      mineCount
+    );
+
+
+  revealed = 0;
+
+  mineGameActive = true;
+
+
+  buildGrid();
+
+
+  startButton.style.display =
+    "none";
+
+  cashoutButton.style.display =
+    "block";
+
+
+  multiplierDisplay.textContent =
+    "1.00×";
+
+
+  potentialDisplay.textContent =
+    DexFansCasino.format(mineBet);
+
+
+  DexFansCasino.setResult(
+    "Find the gems…",
+    ""
+  );
+
+}
+
+
+/* -------------------------
+   REVEAL
+------------------------- */
+
+function revealTile(index, tile) {
+
+  if (!mineGameActive) return;
+
+  if (
+    tile.classList.contains("revealed")
+  ) return;
+
+
+  tile.classList.add("revealed");
+
+
+  /*
+    Mine
+  */
+
+  if (mines.has(index)) {
+
+    tile.innerHTML = "💣";
+
+    tile.classList.add("mine");
+
+    mineGameActive = false;
+
+
+    revealAllMines();
+
+
+    cashoutButton.style.display =
+      "none";
+
+    startButton.style.display =
+      "block";
+
+
+    multiplierDisplay.textContent =
+      "0.00×";
+
+    potentialDisplay.textContent =
+      "0";
+
+
+    DexFansCasino.setResult(
+      "💥 BOOM! You hit a mine.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  /*
+    Gem
+  */
+
+  tile.innerHTML = "💎";
+
+  tile.classList.add("gem");
+
+
+  revealed++;
+
+
+  const mineCount =
+    Number(
+      document.getElementById(
+        "mineCount"
+      ).value
+    );
+
+
+  /*
+    Simple increasing multiplier.
+  */
+
+  const safeTiles =
+    totalTiles - mineCount;
+
+
+  const multiplier =
+    Math.max(
+      1,
+      Math.pow(
+        1.55,
+        revealed
+      )
+    );
+
+
+  const potential =
+    Math.floor(
+      mineBet * multiplier
+    );
+
+
+  multiplierDisplay.textContent =
+    `${multiplier.toFixed(2)}×`;
+
+
+  potentialDisplay.textContent =
+    DexFansCasino.format(
+      potential
+    );
+
+
+  DexFansCasino.setResult(
+    `💎 Gem found! ${revealed} safe tile${revealed === 1 ? "" : "s"}.`,
+    "win"
+  );
+
+
+  /*
+    Automatically win if every
+    safe tile has been revealed.
+  */
+
+  if (
+    revealed >= safeTiles
+  ) {
+
+    cashOut();
+
+  }
+
+}
+
+
+/* -------------------------
+   CASH OUT
+------------------------- */
+
+function cashOut() {
+
+  if (!mineGameActive) return;
+
+
+  const multiplier =
+    parseFloat(
+      multiplierDisplay.textContent
+        .replace("×", "")
+    );
+
+
+  const winnings =
+    Math.floor(
+      mineBet * multiplier
+    );
+
+
+  DexFansCasino.payout(
+    winnings
+  );
+
+
+  mineGameActive = false;
+
+
+  cashoutButton.style.display =
+    "none";
+
+  startButton.style.display =
+    "block";
+
+
+  DexFansCasino.setResult(
+    `💰 Cashed out at ${multiplier.toFixed(2)}× — +${DexFansCasino.format(winnings)} credits`,
+    "win"
+  );
+
+
+  revealAllMines();
+
+}
+
+
+/* -------------------------
+   REVEAL MINES
+------------------------- */
+
+function revealAllMines() {
+
+  document
+    .querySelectorAll(".mine-tile")
+    .forEach(tile => {
+
+      const index =
+        Number(tile.dataset.index);
+
+      if (
+        mines.has(index) &&
+        !tile.classList.contains(
+          "revealed"
+        )
+      ) {
+
+        tile.innerHTML = "💣";
+
+        tile.classList.add("revealed");
+
+      }
+
+    });
+
+}
+
+
+/* -------------------------
+   INITIAL GRID
+------------------------- */
+
+buildGrid();
+
+</script>
+
+</body>
+</html>
