@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>DexFans Crash</title>
+
+  <link rel="stylesheet" href="casino.css">
+</head>
+
+<body>
+
+<header class="casino-header">
+
+  <a href="index.html" class="brand">
+    <span class="brand-mark">♦</span>
+    <span>DexFans Casino</span>
+  </a>
+
+  <div class="balance">
+    <span class="balance-icon">◆</span>
+    <span data-balance>10,000</span>
+  </div>
+
+</header>
+
+
+<main class="page game-page">
+
+  <div class="game-title">
+
+    <h1>🚀 Crash</h1>
+
+    <p>
+      Cash out before the multiplier crashes.
+    </p>
+
+  </div>
+
+
+  <section class="game-panel">
+
+
+    <!-- CRASH DISPLAY -->
+
+    <div class="crash-display">
+
+      <div
+        class="multiplier"
+        data-multiplier
+      >
+        1.00x
+      </div>
+
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div
+      class="result"
+      data-result
+    >
+      Set your bet and cash-out target.
+    </div>
+
+
+    <!-- CONTROLS -->
+
+    <div class="controls">
+
+      <div class="control-group">
+
+        <label for="crashBet">
+          Bet
+        </label>
+
+        <input
+          id="crashBet"
+          type="number"
+          min="1"
+          value="100"
+          inputmode="numeric"
+        >
+
+      </div>
+
+
+      <div class="control-group">
+
+        <label for="cashout">
+
+          Auto Cash Out
+
+        </label>
+
+        <input
+          id="cashout"
+          type="number"
+          min="1.01"
+          step="0.01"
+          value="2.00"
+        >
+
+      </div>
+
+    </div>
+
+
+    <!-- QUICK TARGETS -->
+
+    <div
+      style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:12px;
+      "
+    >
+
+      <button
+        class="btn"
+        onclick="setCashout(1.5)"
+      >
+        1.5×
+      </button>
+
+      <button
+        class="btn"
+        onclick="setCashout(2)"
+      >
+        2×
+      </button>
+
+      <button
+        class="btn"
+        onclick="setCashout(3)"
+      >
+        3×
+      </button>
+
+      <button
+        class="btn"
+        onclick="setCashout(5)"
+      >
+        5×
+      </button>
+
+      <button
+        class="btn"
+        onclick="setCashout(10)"
+      >
+        10×
+      </button>
+
+    </div>
+
+
+    <!-- START -->
+
+    <button
+      id="crashButton"
+      class="btn btn-primary"
+      style="
+        width:100%;
+        margin-top:18px;
+        padding:16px;
+        font-size:18px;
+        font-weight:800;
+      "
+      onclick="startCrash()"
+    >
+      PLACE BET 🚀
+    </button>
+
+
+    <!-- INFO -->
+
+    <div
+      style="
+        margin-top:28px;
+        padding:18px;
+        border-radius:16px;
+        background:rgba(255,255,255,.035);
+        color:var(--muted);
+        font-size:13px;
+        line-height:1.7;
+      "
+    >
+
+      <strong style="color:var(--text)">
+        How it works
+      </strong>
+
+      <br>
+
+      The multiplier starts at 1.00×
+      and rises continuously.
+
+      <br>
+
+      Your selected auto cash-out determines
+      when the game attempts to cash out.
+
+      <br>
+
+      If the crash happens first,
+      the bet is lost.
+
+    </div>
+
+  </section>
+
+
+  <div
+    style="
+      text-align:center;
+      margin-top:25px;
+    "
+  >
+
+    <a
+      href="index.html"
+      class="btn"
+    >
+      ← Back to Casino
+    </a>
+
+  </div>
+
+</main>
+
+
+<script src="casino.js"></script>
+
+
+<script>
+
+let crashRunning = false;
+
+
+/* -------------------------
+   CASHOUT BUTTONS
+------------------------- */
+
+function setCashout(value) {
+
+  document.getElementById(
+    "cashout"
+  ).value = value;
+
+}
+
+
+/* -------------------------
+   START GAME
+------------------------- */
+
+function startCrash() {
+
+  if (crashRunning) return;
+
+
+  const bet = Number(
+    document.getElementById(
+      "crashBet"
+    ).value
+  );
+
+
+  const cashoutAt = Number(
+    document.getElementById(
+      "cashout"
+    ).value
+  );
+
+
+  /* Validate bet */
+
+  if (
+    !Number.isFinite(bet) ||
+    bet <= 0
+  ) {
+
+    DexFansCasino.setResult(
+      "Enter a valid bet.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  /* Validate multiplier */
+
+  if (
+    !Number.isFinite(cashoutAt) ||
+    cashoutAt < 1.01
+  ) {
+
+    DexFansCasino.setResult(
+      "Cash-out must be at least 1.01×.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  /* Validate balance */
+
+  if (
+    bet >
+    DexFansCasino.getBalance()
+  ) {
+
+    DexFansCasino.setResult(
+      "You don't have enough credits.",
+      "lose"
+    );
+
+    return;
+
+  }
+
+
+  crashRunning = true;
+
+
+  const button =
+    document.getElementById(
+      "crashButton"
+    );
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "ROUND RUNNING…";
+
+
+  /* Reset display */
+
+  const display =
+    document.querySelector(
+      "[data-multiplier]"
+    );
+
+
+  if (display) {
+
+    display.textContent =
+      "1.00x";
+
+  }
+
+
+  DexFansCasino.playCrash(
+    bet,
+    cashoutAt
+  );
+
+
+  /*
+    The engine determines when
+    the round ends.
+
+    Unlock the button after enough
+    time for the selected target
+    or crash point to be reached.
+  */
+
+  const unlockTimer =
+    setInterval(() => {
+
+      const text =
+        display
+          ? display.textContent
+          : "1.00x";
+
+
+      const current =
+        parseFloat(
+          text.replace("x", "")
+        );
+
+
+      if (
+        !Number.isFinite(current)
+      ) return;
+
+
+      if (
+        current >= cashoutAt ||
+        text !== "1.00x" &&
+        !document.querySelector(
+          ".multiplier.live"
+        )
+      ) {
+
+        clearInterval(unlockTimer);
+
+        crashRunning = false;
+
+        button.disabled = false;
+
+        button.textContent =
+          "PLACE BET 🚀";
+
+      }
+
+    }, 100);
+
+  /*
+    Safety unlock.
+  */
+
+  setTimeout(() => {
+
+    clearInterval(unlockTimer);
+
+    crashRunning = false;
+
+    button.disabled = false;
+
+    button.textContent =
+      "PLACE BET 🚀";
+
+  }, 90000);
+
+}
+
+</script>
+
+</body>
+</html>
